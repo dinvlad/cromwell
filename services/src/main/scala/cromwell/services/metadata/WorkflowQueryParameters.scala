@@ -25,7 +25,8 @@ case class WorkflowQueryParameters private(statuses: Set[String],
                                            page: Option[Int],
                                            pageSize: Option[Int],
                                            additionalQueryResultFields: Set[String],
-                                           includeSubworkflows: Boolean)
+                                           includeSubworkflows: Boolean,
+                                           minimumSummaryEntryId: Option[Long])
 
 object WorkflowQueryParameters {
 

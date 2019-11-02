@@ -8,6 +8,7 @@ import cats.syntax.validated._
 import cromwell.core.labels.Label
 import cromwell.core.{WorkflowId, WorkflowMetadataKeys, WorkflowState}
 import common.validation.ErrorOr._
+import common.validation.Validation._
 import cats.data.Validated._
 import cats.instances.list._
 import mouse.boolean._
@@ -138,6 +139,18 @@ object WorkflowQueryKey {
       val values = valuesFromMap(grouped).toList
       val nels = values map { v => MetadataArchiveStatusImported.withName(v) }
       sequenceListOfValidatedNels("Unrecognized 'metadata archive status' value(s)", nels)
+    }
+  }
+
+  case object MinimumSummaryEntryId extends WorkflowQueryKey[Option[Long]] {
+    override val name = "Minimumsummaryentryid"
+
+    override def validate(grouped: Map[String, Seq[(String, String)]]): ErrorOr[Option[Long]] = {
+      val values = valuesFromMap(grouped).toList
+      val nels: ErrorOr[List[Long]] = values traverse { v => Try(v.toLong).toErrorOr }
+
+      nels.map(x => Some(x.head))
+
     }
   }
 
