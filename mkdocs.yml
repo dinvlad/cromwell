@@ -82,6 +82,7 @@ nav:
       - Workflow Execution:
         - Main Actors: developers/bitesize/workflowExecution/majorActors.md
       - IoActor: developers/bitesize/IoActor/IoActor.md
+      - 5000ft view of Actor System: developers/bitesize/majorActorSystem/5000FtActorSystem.md
 
 theme: readthedocs
 
