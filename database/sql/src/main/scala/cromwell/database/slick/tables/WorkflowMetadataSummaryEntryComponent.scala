@@ -282,7 +282,7 @@ trait WorkflowMetadataSummaryEntryComponent {
     }
 
     val minimumSummaryEntryConstraint = minimumSummaryEntryId match {
-      case Some(value) => List(sql"""#$summaryTableAlias.#$summaryEntryIdColumn > $value""")
+      case Some(value) => List(sql"""#$summaryTableAlias.#$summaryEntryIdColumn >= $value""")
       case None => List.empty
     }
 

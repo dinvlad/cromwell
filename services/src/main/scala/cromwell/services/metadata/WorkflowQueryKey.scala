@@ -32,7 +32,8 @@ object WorkflowQueryKey {
     AdditionalQueryResultFields,
     SubmissionTime,
     IncludeSubworkflows,
-    MetadataArchiveStatus
+    MetadataArchiveStatus,
+    MinimumSummaryEntryId
   ) map { _.name }
 
   case object StartDate extends DateTimeWorkflowQueryKey {

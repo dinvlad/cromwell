@@ -58,8 +58,9 @@ class CarboniteWorkerActorSpec extends TestKitSuite("CarboniteWorkerActorSpec") 
 
     10.times {
       // We might get noise from instrumentation. We can ignore that, but we expect the query to come through eventually:
+      val expectedQueryParams = CarboniteWorkerActor.findWorkflowToCarboniteQueryParameters(carboniterConfig.minimumSummaryEntryId)
       serviceRegistryActor.fishForSpecificMessage(10.seconds) {
-        case QueryForWorkflowsMatchingParameters(CarboniteWorkerActor.findWorkflowToCarboniteQueryParameters) => true
+        case QueryForWorkflowsMatchingParameters(`expectedQueryParams`) => true
       }
 
       serviceRegistryActor.send(carboniteWorkerActor, querySuccessResponse)
