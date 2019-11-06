@@ -147,10 +147,12 @@ object WorkflowQueryKey {
 
     override def validate(grouped: Map[String, Seq[(String, String)]]): ErrorOr[Option[Long]] = {
       val values = valuesFromMap(grouped).toList
-      val nels: ErrorOr[List[Long]] = values traverse { v => Try(v.toLong).toErrorOr }
-
-      nels.map(x => Some(x.head))
-
+      if (values.isEmpty) {
+        None.validNel
+      } else {
+        val nels: ErrorOr[List[Long]] = values traverse { v => Try(v.toLong).toErrorOr }
+        nels.map(x => Option(x.min))
+      }
     }
   }
 
