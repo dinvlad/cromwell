@@ -79,10 +79,11 @@ nav:
     - Contribute to docs: developers/Contribute.md
     - CWL Parsing: developers/CwlParsing.md
     - Bitesize Design Docs:
-      - Workflow Execution:
-        - Main Actors: developers/bitesize/workflowExecution/majorActors.md
-      - IoActor: developers/bitesize/IoActor/IoActor.md
-      - 5000ft view of Actor System: developers/bitesize/majorActorSystem/5000FtActorSystem.md
+        - Cromwell Actor System:
+            - High level view: developers/bitesize/majorActorSystem/5000FtActorSystem.md
+            - Workflow Execution:
+                - Main Actors: developers/bitesize/workflowExecution/majorActors.md
+            - IoActor: developers/bitesize/IoActor/IoActor.md
 
 theme: readthedocs
 
