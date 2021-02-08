@@ -10,11 +10,11 @@ jobs:
       matrix:
         project:
         - cromiam
-        # - cromwell-drs-localizer
-        # - perf
-        # - server
-        # - statsDProxy
-        # - womtool
+        - cromwell-drs-localizer
+        - perf
+        - server
+        - statsDProxy
+        - womtool
 
     steps:
       - uses: actions/checkout@v2
