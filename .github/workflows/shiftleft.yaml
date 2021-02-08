@@ -5,12 +5,58 @@ jobs:
   shiftleft:
     name: ShiftLeft static security analysis
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+        - cromiam
+        # - cromwell-drs-localizer
+        # - perf
+        # - server
+        # - statsDProxy
+        # - womtool
+
     steps:
       - uses: actions/checkout@v2
 
-      - env:
+      # fetch SBT package
+      - uses: olafurpg/setup-scala@v10
+
+      # set up SBT cache
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache
+            ~/.coursier/cache
+            ~/.ivy2/cache
+            ~/.sbt
+          key: sbt-${{ matrix.project }}-${{ hashFiles('**/*.sbt') }}
+          restore-keys: |
+            sbt-${{ matrix.project }}-
+            sbt-
+
+      # build the jar
+      - name: Build
+        id: build
+        run: |
+          # build sources and store the log
+          sbt -no-colors ${{ matrix.project }}/package | tee build.log
+
+          # export JAR path from the log
+          jar=$(grep 'Packaging' build.log | awk '{print $3}')
+          echo "::set-output name=jar::${jar}"
+
+      # set up ShiftLeft
+      - name: Set up ShiftLeft
+        env:
           SHIFTLEFT_ORG_ID: ${{ secrets.SHIFTLEFT_ORG_ID }}
           SHIFTLEFT_TOKEN: ${{ secrets.SHIFTLEFT_TOKEN }}
         run: |
-          curl -so $HOME/sl https://cdn.shiftleft.io/download/sl && chmod +x $HOME/sl
-          $HOME/sl auth --org "${SHIFTLEFT_ORG_ID}" --token "${SHIFTLEFT_TOKEN}" --no-diagnostic
+          sudo curl -so /usr/local/bin/sl https://cdn.shiftleft.io/download/sl
+          sudo chmod +x /usr/local/bin/sl
+          sl auth --org "${SHIFTLEFT_ORG_ID}" --token "${SHIFTLEFT_TOKEN}" --no-diagnostic
+
+      # analyze
+      - name: ShiftLeft static analysis
+        run: |
+          sl analyze --app ${{ matrix.project }} --java "${{ steps.build.outputs.jar }}"
