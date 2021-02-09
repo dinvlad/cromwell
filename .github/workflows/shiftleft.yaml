@@ -40,7 +40,7 @@ jobs:
         id: build
         run: |
           # build sources and store the log
-          sbt -no-colors ${{ matrix.project }}/package | tee build.log
+          sbt -no-colors ${{ matrix.project }}/assembly | tee build.log
 
           # export JAR path from the log
           jar=$(grep 'Packaging' build.log | awk '{print $3}')
