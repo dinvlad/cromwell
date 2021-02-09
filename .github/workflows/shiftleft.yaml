@@ -44,6 +44,7 @@ jobs:
 
           # export JAR path from the log
           jar=$(grep 'Packaging' build.log | awk '{print $3}')
+          du -hs "${jar}"
           echo "::set-output name=jar::${jar}"
 
       # set up ShiftLeft
