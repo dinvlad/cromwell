@@ -1,0 +1,65 @@
+name: dsp-appsec-shiftleft
+on: [pull_request]
+
+jobs:
+  shiftleft:
+    name: ShiftLeft static security analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+        - cromiam
+        - cromwell-drs-localizer
+        - perf
+        - server
+        - statsDProxy
+        - womtool
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # fetch SBT package
+      - uses: olafurpg/setup-scala@v10
+
+      # set up SBT cache
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache
+            ~/.coursier/cache
+            ~/.ivy2/cache
+            ~/.sbt
+          key: sbt-${{ matrix.project }}-${{ hashFiles('**/*.sbt') }}
+          restore-keys: |
+            sbt-${{ matrix.project }}-
+            sbt-
+
+      # build the jar
+      - name: Build
+        id: build
+        run: |
+          # build sources and store the log
+          sbt -no-colors ${{ matrix.project }}/assembly | tee build.log
+
+          # export JAR path from the log
+          jar=$(grep 'Packaging' build.log | awk '{print $3}')
+          du -hs "${jar}"
+          echo "::set-output name=jar::${jar}"
+
+      # set up ShiftLeft
+      - name: Set up ShiftLeft
+        env:
+          SHIFTLEFT_ORG_ID: ${{ secrets.SHIFTLEFT_ORG_ID }}
+          SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+        run: |
+          sudo curl -so /usr/local/bin/sl https://cdn.shiftleft.io/download/sl
+          sudo chmod +x /usr/local/bin/sl
+          sl auth --no-diagnostic
+
+      # analyze
+      - name: ShiftLeft static analysis
+        env:
+          SHIFTLEFT_APP: ${{ github.event.repository.name }}-${{ matrix.project }}
+        run: |
+          sl analyze --java "${{ steps.build.outputs.jar }}"
